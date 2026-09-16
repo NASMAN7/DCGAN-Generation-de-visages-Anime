@@ -1,12 +1,12 @@
-# 🎨 DCGAN — Génération de visages anime
+# 🎨 DCGAN — Anime Face Generation
 
-Ce projet implémente un réseau antagoniste génératif profond (**DCGAN**) avec **PyTorch** afin de générer des visages de style anime à partir d’un vecteur de bruit aléatoire.
+This project implements a **Deep Convolutional Generative Adversarial Network (DCGAN)** using **PyTorch** to generate anime-style faces from random noise vectors.
 
-Le modèle a été entraîné sur l’**Anime Face Dataset**, qui contient environ 60 000 images. Bien que le code d’origine ait été conçu pour une résolution de 128 × 128 pixels, les modèles pré-entraînés fournis utilisent une résolution de **64 × 64 pixels** afin de réduire le temps de calcul.
+The model was trained on the **Anime Face Dataset**, which contains approximately 60,000 images. Although the original code was designed for a resolution of 128 × 128 pixels, the provided pre-trained models use a resolution of **64 × 64 pixels** to reduce computation time.
 
 ---
 
-## 📁 Structure du dépôt
+## 📁 Repository Structure
 
 ```text
 .
@@ -17,65 +17,65 @@ Le modèle a été entraîné sur l’**Anime Face Dataset**, qui contient envir
 ├── requirements.txt
 └── generated_images/
     ├── image_000.png
-    ├──  ...
+    ├── ...
     └── image_015.png
 ```
 
-* `DCGAN_Anime.ipynb` : notebook complet comprenant l’exploration des données, le prétraitement et la boucle d’entraînement.
-* `generate_images.py` : script Python autonome permettant de générer de nouvelles images à partir des poids sauvegardés.
-* `generator.pth` : poids pré-entraînés du générateur.
-* `discriminator.pth` : poids pré-entraînés du discriminateur.
-* `requirements.txt` : liste des dépendances nécessaires au projet.
-* `generated_images/` : dossier contenant des exemples de visages générés.
+* `DCGAN_Anime.ipynb`: complete notebook containing data exploration, preprocessing, and the training loop.
+* `generate_images.py`: standalone Python script used to generate new images from the saved model weights.
+* `generator.pth`: pre-trained generator weights.
+* `discriminator.pth`: pre-trained discriminator weights.
+* `requirements.txt`: list of dependencies required for the project.
+* `generated_images/`: directory containing examples of generated faces.
 
 ---
 
-## 🛠️ Architecture et stabilisation
+## 🛠️ Architecture and Stabilization
 
-L’entraînement d’un GAN étant souvent instable, notamment à cause du *mode collapse*, plusieurs techniques ont été intégrées pour améliorer la convergence.
+Training a GAN is often unstable, particularly because of problems such as *mode collapse*. Several techniques were therefore implemented to improve convergence.
 
-### 1. Normalisation spectrale
+### 1. Spectral Normalization
 
-La **Spectral Normalization** est appliquée au discriminateur. Elle contraint sa constante de Lipschitz afin d’éviter qu’il ne devienne trop confiant trop rapidement.
+**Spectral Normalization** is applied to the discriminator. It constrains its Lipschitz constant, preventing the discriminator from becoming overly confident too quickly.
 
-### 2. Taux d’apprentissage différenciés
+### 2. Different Learning Rates
 
-Les taux d’apprentissage utilisés avec l’optimiseur Adam sont :
+The following learning rates are used with the Adam optimizer:
 
-* Générateur : `0.0002`
-* Discriminateur : `0.0001`
+* Generator: `0.0002`
+* Discriminator: `0.0001`
 
-### 3. Lissage des labels
+### 3. Label Smoothing
 
-Les vraies images utilisent une cible de `0.9` au lieu de `1.0`. Cette technique empêche le discriminateur de devenir excessivement confiant.
+Real images use a target label of `0.9` instead of `1.0`. This technique prevents the discriminator from becoming excessively confident.
 
-### 4. Bruit d’instance décroissant
+### 4. Decaying Instance Noise
 
-Un bruit est ajouté aux images réelles au début de l’entraînement. Son intensité diminue progressivement au fil des époques.
+Noise is added to real images at the beginning of training. Its intensity gradually decreases over the epochs.
 
-Cette technique empêche le discriminateur d’apprendre trop rapidement des différences triviales entre les vraies et les fausses images.
+This technique prevents the discriminator from learning trivial differences between real and generated images too quickly.
 
-### 5. Suivi probabiliste
+### 5. Probability Monitoring
 
-Les probabilités suivantes sont enregistrées pendant l’entraînement :
+The following probabilities are recorded during training:
 
-* `D(x)` : confiance du discriminateur pour les images réelles.
-* `D(G(z))` : confiance du discriminateur pour les images générées.
+* `D(x)`: the discriminator’s confidence for real images.
+* `D(G(z))`: the discriminator’s confidence for generated images.
 
-L’objectif est de surveiller l’équilibre entre le générateur et le discriminateur, idéalement autour de `0.5`.
+The objective is to monitor the balance between the generator and the discriminator, ideally around `0.5`.
 
 ---
 
 ## 📦 Installation
 
-Clonez le dépôt, puis placez-vous dans le dossier du projet :
+Clone the repository and navigate to the project directory:
 
 ```bash
-git clone URL_DU_DEPOT
-cd NOM_DU_DEPOT
+git clone REPOSITORY_URL
+cd REPOSITORY_NAME
 ```
 
-Installez ensuite les dépendances requises :
+Then install the required dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -83,15 +83,15 @@ pip install -r requirements.txt
 
 ---
 
-## 💻 Utilisation
+## 💻 Usage
 
-### 1. Génération d’images
+### 1. Image Generation
 
-Le script `generate_images.py` permet de créer de nouveaux visages anime à partir du modèle pré-entraîné `generator.pth`.
+The `generate_images.py` script generates new anime faces using the pre-trained `generator.pth` model.
 
-Le script est configuré pour une résolution de **64 × 64 pixels**.
+The script is configured for a resolution of **64 × 64 pixels**.
 
-Pour générer 16 images :
+To generate 16 images:
 
 ```bash
 python generate_images.py \
@@ -100,9 +100,9 @@ python generate_images.py \
   --output_dir ./generated_images
 ```
 
-### Génération d’une grille d’images
+### Generating an Image Grid
 
-Pour générer des images et créer une grille récapitulative :
+To generate images and create a summary grid:
 
 ```bash
 python generate_images.py \
@@ -111,56 +111,56 @@ python generate_images.py \
   --grid
 ```
 
-L’argument `--grid` permet de sauvegarder une seule image regroupant tous les visages générés.
+The `--grid` argument saves a single image containing all the generated faces.
 
-Lorsque le discriminateur est fourni, le script peut également afficher le score de réalisme estimé `D(G(z))`.
+When the discriminator is provided, the script can also display the estimated realism score, `D(G(z))`.
 
 ---
 
-## 🔁 Ré-entraînement du modèle
+## 🔁 Retraining the Model
 
-Pour lancer un nouvel entraînement, ouvrez le notebook :
+To start a new training session, open the following notebook:
 
 ```text
 DCGAN_Anime.ipynb
 ```
 
-Il est recommandé d’utiliser :
+It is recommended to use:
 
-* Google Colab ;
-* une machine équipée d’un GPU NVIDIA ;
-* ou un environnement disposant de suffisamment de VRAM.
+* Google Colab;
+* a machine equipped with an NVIDIA GPU;
+* or an environment with sufficient VRAM.
 
-> **Attention :** le notebook contient l’architecture complète permettant de générer des images en 128 × 128 pixels. Pour revenir à une résolution de 64 × 64 pixels, retirez la dernière couche `ConvTranspose2d` du générateur et adaptez le discriminateur en conséquence.
-
----
-
-## 📊 Évaluation
-
-La qualité des images générées peut être évaluée à l’aide du **FID — Fréchet Inception Distance**.
-
-Le notebook contient une routine utilisant `pytorch-fid` qui effectue les étapes suivantes :
-
-1. sélection de 500 images réelles ;
-2. génération de 500 images artificielles ;
-3. uniformisation de la résolution des images ;
-4. calcul de la distance de Fréchet entre les deux distributions.
-
-Une valeur FID plus faible indique généralement une meilleure qualité et une plus grande diversité des images générées.
+> **Warning:** the notebook contains the complete architecture for generating images at a resolution of 128 × 128 pixels. To return to a resolution of 64 × 64 pixels, remove the final `ConvTranspose2d` layer from the generator and adjust the discriminator accordingly.
 
 ---
 
-## 🖼️ Exemples de visages générés
+## 📊 Evaluation
+
+The quality of the generated images can be evaluated using the **Fréchet Inception Distance (FID)**.
+
+The notebook includes a routine based on `pytorch-fid` that performs the following steps:
+
+1. selects 500 real images;
+2. generates 500 synthetic images;
+3. standardizes the image resolutions;
+4. calculates the Fréchet distance between the two distributions.
+
+A lower FID score generally indicates better image quality and greater diversity among the generated images.
+
+---
+
+## 🖼️ Examples of Generated Faces
 
 <p align="center">
-  <img src="generated_images/summary_grid.png" width="400" height="400" alt="Grid des visages animes générées">
+  <img src="generated_images/summary_grid.png" width="400" height="400" alt="Grid of generated anime faces">
 </p>
 
-Les images ci-dessus sont chargées directement depuis le dossier `generated_images` du projet.
+The image above is loaded directly from the project’s `generated_images` directory.
 
 ---
 
-## ✍️ Auteur
+## ✍️ Author
 
 **NASMANE Abdelhak**
-Toulouse INP N7 — Mai 2026
+Toulouse INP N7 — May 2026
