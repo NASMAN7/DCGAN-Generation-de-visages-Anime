@@ -16,8 +16,9 @@ Le modèle a été entraîné sur l’**Anime Face Dataset**, qui contient envir
 ├── discriminator.pth
 ├── requirements.txt
 └── generated_images/
-    ├── image_013.png
-    └── image_007.png
+    ├── image_000.png
+    ├──  ...
+    └── image_015.png
 ```
 
 * `DCGAN_Anime.ipynb` : notebook complet comprenant l’exploration des données, le prétraitement et la boucle d’entraînement.
@@ -152,8 +153,7 @@ Une valeur FID plus faible indique généralement une meilleure qualité et une 
 ## 🖼️ Exemples de visages générés
 
 <p align="center">
-  <img src="generated_images/image_013.png" width="250" alt="Premier visage anime généré">
-  <img src="generated_images/image_007.png" width="250" alt="Deuxième visage anime généré">
+  <img src="generated_images/summary_grid.png" width="400" height="400" alt="Grid des visages animes générées">
 </p>
 
 Les images ci-dessus sont chargées directement depuis le dossier `generated_images` du projet.
