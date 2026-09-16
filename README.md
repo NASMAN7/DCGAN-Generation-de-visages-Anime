@@ -1,11 +1,14 @@
-🎨 DCGAN — Génération de visages anime
+# 🎨 DCGAN — Génération de visages anime
 
-Ce projet implémente un réseau antagoniste génératif profond (DCGAN) avec PyTorch afin de générer des visages de style anime à partir d’un vecteur de bruit aléatoire.
+Ce projet implémente un réseau antagoniste génératif profond (**DCGAN**) avec **PyTorch** afin de générer des visages de style anime à partir d’un vecteur de bruit aléatoire.
 
-Le modèle a été entraîné sur l’Anime Face Dataset, qui contient environ 60 000 images. Bien que le code d’origine ait été conçu pour une résolution de 128 × 128 pixels, les modèles pré-entraînés fournis utilisent une résolution de 64 × 64 pixels afin de réduire le temps de calcul.
+Le modèle a été entraîné sur l’**Anime Face Dataset**, qui contient environ 60 000 images. Bien que le code d’origine ait été conçu pour une résolution de 128 × 128 pixels, les modèles pré-entraînés fournis utilisent une résolution de **64 × 64 pixels** afin de réduire le temps de calcul.
 
-📁 Structure du dépôt
+---
 
+## 📁 Structure du dépôt
+
+```text
 .
 ├── DCGAN_Anime.ipynb
 ├── generate_images.py
@@ -13,90 +16,151 @@ Le modèle a été entraîné sur l’Anime Face Dataset, qui contient environ 6
 ├── discriminator.pth
 ├── requirements.txt
 └── generated_images/
+    ├── image_013.png
+    └── image_007.png
+```
 
-DCGAN_Anime.ipynb : notebook complet comprenant l’exploration des données, le prétraitement et la boucle d’entraînement.
+* `DCGAN_Anime.ipynb` : notebook complet comprenant l’exploration des données, le prétraitement et la boucle d’entraînement.
+* `generate_images.py` : script Python autonome permettant de générer de nouvelles images à partir des poids sauvegardés.
+* `generator.pth` : poids pré-entraînés du générateur.
+* `discriminator.pth` : poids pré-entraînés du discriminateur.
+* `requirements.txt` : liste des dépendances nécessaires au projet.
+* `generated_images/` : dossier contenant des exemples de visages générés.
 
-generate_images.py : script Python autonome permettant de générer de nouvelles images à partir des poids sauvegardés.
+---
 
-generator.pth et discriminator.pth : poids pré-entraînés des modèles en résolution 64 × 64.
+## 🛠️ Architecture et stabilisation
 
-requirements.txt : liste des dépendances nécessaires au projet.
+L’entraînement d’un GAN étant souvent instable, notamment à cause du *mode collapse*, plusieurs techniques ont été intégrées pour améliorer la convergence.
 
-generated_images/ : dossier contenant des exemples de visages générés.
+### 1. Normalisation spectrale
 
-🛠️ Architecture et stabilisation
+La **Spectral Normalization** est appliquée au discriminateur. Elle contraint sa constante de Lipschitz afin d’éviter qu’il ne devienne trop confiant trop rapidement.
 
-L’entraînement d’un GAN étant souvent instable — notamment à cause du mode collapse — plusieurs techniques ont été intégrées afin d’améliorer la convergence :
+### 2. Taux d’apprentissage différenciés
 
-Normalisation spectrale — discriminateur : contraint la constante de Lipschitz afin d’éviter que le discriminateur ne devienne trop confiant trop rapidement.
+Les taux d’apprentissage utilisés avec l’optimiseur Adam sont :
 
-Taux d’apprentissage différenciés : 0.0002 pour le générateur et 0.0001 pour le discriminateur, avec l’optimiseur Adam.
+* Générateur : `0.0002`
+* Discriminateur : `0.0001`
 
-Lissage des labels : utilise une cible de 0.9 au lieu de 1.0 pour les images réelles.
+### 3. Lissage des labels
 
-Bruit d’instance décroissant : ajoute du bruit aux images réelles au début de l’entraînement, puis le réduit progressivement au fil des époques. Cela empêche le discriminateur d’apprendre des raccourcis triviaux.
+Les vraies images utilisent une cible de `0.9` au lieu de `1.0`. Cette technique empêche le discriminateur de devenir excessivement confiant.
 
-Suivi probabiliste : journalise D(x), la confiance accordée aux images réelles, et D(G(z)), la confiance accordée aux images générées, afin de surveiller leur équilibre théorique autour de 0.5.
+### 4. Bruit d’instance décroissant
 
-📦 Installation
+Un bruit est ajouté aux images réelles au début de l’entraînement. Son intensité diminue progressivement au fil des époques.
 
-Clonez le dépôt, placez-vous dans son dossier, puis installez les dépendances :
+Cette technique empêche le discriminateur d’apprendre trop rapidement des différences triviales entre les vraies et les fausses images.
 
+### 5. Suivi probabiliste
+
+Les probabilités suivantes sont enregistrées pendant l’entraînement :
+
+* `D(x)` : confiance du discriminateur pour les images réelles.
+* `D(G(z))` : confiance du discriminateur pour les images générées.
+
+L’objectif est de surveiller l’équilibre entre le générateur et le discriminateur, idéalement autour de `0.5`.
+
+---
+
+## 📦 Installation
+
+Clonez le dépôt, puis placez-vous dans le dossier du projet :
+
+```bash
+git clone URL_DU_DEPOT
+cd NOM_DU_DEPOT
+```
+
+Installez ensuite les dépendances requises :
+
+```bash
 pip install -r requirements.txt
+```
 
-💻 Utilisation
+---
 
-1. Générer des images — inférence
+## 💻 Utilisation
 
-Utilisez generate_images.py pour créer de nouveaux visages à partir du modèle pré-entraîné generator.pth. Le script est configuré pour l’architecture 64 × 64.
+### 1. Génération d’images
 
-Générer 16 images :
+Le script `generate_images.py` permet de créer de nouveaux visages anime à partir du modèle pré-entraîné `generator.pth`.
 
+Le script est configuré pour une résolution de **64 × 64 pixels**.
+
+Pour générer 16 images :
+
+```bash
 python generate_images.py \
   --generator_path generator.pth \
   --num_images 16 \
   --output_dir ./generated_images
+```
 
-Générer des images et afficher le score de réalisme estimé D(G(z)) :
+### Génération d’une grille d’images
 
+Pour générer des images et créer une grille récapitulative :
+
+```bash
 python generate_images.py \
   --generator_path generator.pth \
   --discriminator_path discriminator.pth \
   --grid
+```
 
-L’argument --grid permet de sauvegarder une grille récapitulative regroupant toutes les images générées.
+L’argument `--grid` permet de sauvegarder une seule image regroupant tous les visages générés.
 
-2. Ré-entraîner le modèle
+Lorsque le discriminateur est fourni, le script peut également afficher le score de réalisme estimé `D(G(z))`.
 
-Pour lancer un nouvel entraînement, ouvrez DCGAN_Anime.ipynb, idéalement dans Google Colab ou sur une machine équipée d’un GPU.
+---
 
-[!WARNING]
-Le notebook contient l’architecture complète pour générer des images en 128 × 128. Pour l’exécuter tel quel, prévoyez suffisamment de temps de calcul et de VRAM. Pour revenir à une résolution de 64 × 64, retirez la dernière couche ConvTranspose2d du générateur et adaptez le discriminateur en conséquence.
+## 🔁 Ré-entraînement du modèle
 
-📊 Évaluation
+Pour lancer un nouvel entraînement, ouvrez le notebook :
 
-La qualité des images générées peut être évaluée avec le FID — Fréchet Inception Distance. Le notebook contient une routine utilisant pytorch-fid qui :
+```text
+DCGAN_Anime.ipynb
+```
 
-isole un échantillon de 500 images réelles ;
+Il est recommandé d’utiliser :
 
-génère 500 images artificielles ;
+* Google Colab ;
+* une machine équipée d’un GPU NVIDIA ;
+* ou un environnement disposant de suffisamment de VRAM.
 
-uniformise les résolutions ;
+> **Attention :** le notebook contient l’architecture complète permettant de générer des images en 128 × 128 pixels. Pour revenir à une résolution de 64 × 64 pixels, retirez la dernière couche `ConvTranspose2d` du générateur et adaptez le discriminateur en conséquence.
 
-calcule la distance de Fréchet entre les deux distributions.
+---
 
-Exemples de visages générés
+## 📊 Évaluation
 
-![Visage anime généré](generated_images/image_013.png)
+La qualité des images générées peut être évaluée à l’aide du **FID — Fréchet Inception Distance**.
 
-![Deuxième visage généré](generated_images/image_007.png)
+Le notebook contient une routine utilisant `pytorch-fid` qui effectue les étapes suivantes :
 
+1. sélection de 500 images réelles ;
+2. génération de 500 images artificielles ;
+3. uniformisation de la résolution des images ;
+4. calcul de la distance de Fréchet entre les deux distributions.
 
+Une valeur FID plus faible indique généralement une meilleure qualité et une plus grande diversité des images générées.
 
+---
 
+## 🖼️ Exemples de visages générés
 
-✍️ Auteur
+<p align="center">
+  <img src="generated_images/image_013.png" width="250" alt="Premier visage anime généré">
+  <img src="generated_images/image_007.png" width="250" alt="Deuxième visage anime généré">
+</p>
 
-NASMANE Abdelhak
+Les images ci-dessus sont chargées directement depuis le dossier `generated_images` du projet.
+
+---
+
+## ✍️ Auteur
+
+**NASMANE Abdelhak**
 Toulouse INP N7 — Mai 2026
-
